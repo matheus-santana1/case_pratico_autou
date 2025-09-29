@@ -1,0 +1,8 @@
+button[kind="secondaryFormSubmit"] {
+    background-color: #4CAF50;
+}
+
+button[kind="secondaryFormSubmit"]:hover {
+    background-color: #45A049;
+    color: white;
+}
