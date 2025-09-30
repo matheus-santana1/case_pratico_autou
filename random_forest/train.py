@@ -2,6 +2,7 @@ import pandas as pd
 import joblib
 import string
 import nltk
+import os
 from nltk.corpus import stopwords
 from nltk.stem import WordNetLemmatizer
 from sklearn.model_selection import train_test_split
@@ -9,6 +10,9 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.pipeline import Pipeline
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import classification_report, confusion_matrix, accuracy_score
+
+nltk_data_dir = os.path.join(os.path.dirname(__file__), "nltk_data")
+nltk.data.path.append(nltk_data_dir)
 
 lemmatizer = WordNetLemmatizer()
 stop_words = set(stopwords.words("portuguese"))
@@ -28,13 +32,9 @@ def preprocess(text):
 
 
 if __name__ == '__main__':
-    nltk.download('stopwords')
-    nltk.download('wordnet')
-    nltk.download('omw-1.4')
+    df = pd.read_csv("dataset.csv")
 
-    df = pd.read_csv("random_forest/dataset.csv")
-
-    df["tipo"] = df["tipo"].map({"produtivo": 1, "improdutivo": 0})
+    df["tipo"] = df["tipo"].map({"produtivo": 1, "improdutivo": 2})
 
     df["mensagem"] = df["mensagem"].fillna("").apply(preprocess)
 

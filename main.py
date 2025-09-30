@@ -25,7 +25,7 @@ def modal_resposta(informacao):
     st.markdown(
         f"""
         <div style="padding: 15px; border-radius: 10px; background-color: #fdf6f0; box-shadow: 0 2px 8px rgba(0,0,0,0.1)
-        ; margin-top: 10px;">
+        ; margin: 10px 0px 10px 0px;">
             <h4 style="color: #ff7f0e; margin-bottom: 10px;">API (Google Gemini)</h4>
             <p style="font-size: 16px; color: #333;">{informacao.resposta_api}</p>
         </div>
@@ -55,11 +55,13 @@ if __name__ == '__main__':
                 elif files:
                     for f in files:
                         if f.name.endswith(".txt"):
-                            Consulta.create(conteudo_email=f.read().decode("utf-8"))
+                            info = Consulta.create(conteudo_email=f.read().decode("utf-8"))
                         elif f.name.endswith(".pdf"):
                             reader = PdfReader(f)
                             texto_pdf = "\n".join([page.extract_text() for page in reader.pages])
-                            Consulta.create(conteudo_email=texto_pdf)
+                            info = Consulta.create(conteudo_email=texto_pdf)
+                        if len(files) == 1:
+                            modal_resposta(info)
                 else:
                     st.error('É necessário preencher o conteúdo do e-mail ou enviar pelo menos um arquivo de e-mail.')
         dataframe = pd.DataFrame(list(Consulta.select().dicts()))
@@ -76,6 +78,8 @@ if __name__ == '__main__':
                 ids = dataframe["id"].copy()
                 dataframe["Remover"] = False
                 dataframe.drop(columns=["id"], inplace=True)
+
+                linhas_desabilitadas = [i for i in range(10)]
 
                 data_editor = st.data_editor(dataframe, hide_index=True, column_config={
                     "Remover": st.column_config.CheckboxColumn(
@@ -95,7 +99,10 @@ if __name__ == '__main__':
 
                 if st.button("Remover selecionados"):
                     linhas_selecionadas = data_editor.index[data_editor["Remover"]].tolist()
-                    ids_para_remover = ids.iloc[linhas_selecionadas].tolist()
+                    ids_para_remover = [
+                        i for i in ids.iloc[linhas_selecionadas].tolist()
+                        if i not in ids.iloc[:10].tolist()
+                    ]
 
                     if ids_para_remover:
                         Consulta.delete().where(Consulta.id.in_(ids_para_remover)).execute()
@@ -107,7 +114,7 @@ if __name__ == '__main__':
                 col1, col2 = st.columns(2, border=True)
 
                 df = pd.DataFrame(list(Consulta.select().dicts()))
-                mapa_tipos = {1: "Improdutivo", 2: "Produtivo"}
+                mapa_tipos = {1: "Produtivo", 2: "Improdutivo"}
                 df["tipo_classificador_nome"] = df["tipo_classificador"].map(mapa_tipos)
                 df["tipo_api_nome"] = df["tipo_api"].map(mapa_tipos)
 
