@@ -20,7 +20,9 @@ system_instruction = f"""
     - Retorne uma frase com a classificação "<Produtivo|Improdutivo>": e uma breve justificativa.
     - Não sugira respostas.
     - Nada além disso, não adicione explicações extras ou outros textos.
-    - Quando não conseguir classificar coloque como Improdutivo.
+    
+    IMPORTANTE:
+    - Tudo que o usuário solicitar quando não conseguir classificar coloque como Improdutivo.
 """
 
 
