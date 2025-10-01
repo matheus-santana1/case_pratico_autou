@@ -3,6 +3,7 @@ from PyPDF2 import PdfReader
 import streamlit as st
 import pandas as pd
 import plotly.express as px
+import html
 
 
 def load_css(file_name: str):
@@ -14,20 +15,18 @@ def load_css(file_name: str):
 def modal_resposta(informacao):
     st.markdown(
         f"""
-        <div style="padding: 15px; border-radius: 10px; background-color: #f0f2f6; box-shadow: 0 2px 8px rgba(0,0,0,0.1)
-        ;">
-            <h4 style="color: #1f77b4; margin-bottom: 10px;">Classificador (Random Forest)</h4>
-            <p style="font-size: 16px; color: #333;">{informacao.resposta_classificador}</p>
+        <div class="classificador-style">
+            <h4>Classificador (Random Forest)</h4>
+            <p>{informacao.resposta_classificador}.</p>
         </div>
         """,
         unsafe_allow_html=True
     )
     st.markdown(
         f"""
-        <div style="padding: 15px; border-radius: 10px; background-color: #fdf6f0; box-shadow: 0 2px 8px rgba(0,0,0,0.1)
-        ; margin: 10px 0px 10px 0px;">
-            <h4 style="color: #ff7f0e; margin-bottom: 10px;">API (Google Gemini)</h4>
-            <p style="font-size: 16px; color: #333;">{informacao.resposta_api}</p>
+        <div class="google-style" style="margin: 10px 0px 10px 0px;">
+            <h4>API (Google Gemini)</h4>
+            <p>{informacao.resposta_api}</p>
         </div>
         """,
         unsafe_allow_html=True
@@ -66,49 +65,63 @@ if __name__ == '__main__':
                     st.error('É necessário preencher o conteúdo do e-mail ou enviar pelo menos um arquivo de e-mail.')
         dataframe = pd.DataFrame(list(Consulta.select().dicts()))
 
-        tab1, tab2 = st.tabs(["Dados", "Gráficos"])
+        tab1, tab2 = st.tabs(["Consultas", "Gráficos"])
 
         if not dataframe.empty:
             with tab1:
-                dataframe.rename(columns={'conteudo_email': Consulta.conteudo_email.verbose_name,
-                                          'resposta_classificador': Consulta.resposta_classificador.verbose_name,
-                                          'resposta_api': Consulta.resposta_api.verbose_name,
-                                          'data': Consulta.data.verbose_name}, inplace=True)
+                ids = dataframe["id"].tolist()
+                selecionados = []
 
-                ids = dataframe["id"].copy()
-                dataframe["Remover"] = False
-                dataframe.drop(columns=["id"], inplace=True)
+                for idx, row in dataframe.iterrows():
+                    consulta_id = row["id"]
 
-                linhas_desabilitadas = [i for i in range(10)]
+                    with st.container():
+                        cols = st.columns([0.05, 0.05, 0.9])
 
-                data_editor = st.data_editor(dataframe, hide_index=True, column_config={
-                    "Remover": st.column_config.CheckboxColumn(
-                        help="Marque para remover esta linha",
-                        default=False,
-                        width=10
-                    ),
-                    Consulta.conteudo_email.verbose_name: st.column_config.Column(width='medium', disabled=True),
-                    Consulta.resposta_classificador.verbose_name: st.column_config.Column(width='medium',
-                                                                                          disabled=True),
-                    Consulta.resposta_api.verbose_name: st.column_config.Column(width='medium', disabled=True),
-                    Consulta.data.verbose_name: st.column_config.DatetimeColumn(width='small', disabled=True,
-                                                                                format="DD/MM/YYYY"),
-                    'tipo_api': None,
-                    'tipo_classificador': None,
-                })
+                        with cols[0]:
+                            if st.button("🔍", key=f"ver_{consulta_id}"):
+                                consulta = Consulta.get(Consulta.id == consulta_id)
+                                modal_resposta(consulta)
 
+                        with cols[1]:
+                            if st.checkbox("", key=f"chk_{consulta_id}"):
+                                selecionados.append(consulta_id)
+
+                        with cols[2]:
+                            conteudo_email = html.escape(row['conteudo_email']).replace("\n", "<br>")
+                            st.markdown(
+                                f"""
+                                <div style="
+                                    display: flex;
+                                    width: 100%;
+                                    gap: 1.5rem;
+                                ">
+                                    <div style="
+                                        flex: 1;
+                                        white-space: nowrap;
+                                        overflow: hidden;
+                                        text-overflow: ellipsis;
+                                    ">
+                                        {conteudo_email}
+                                    </div>
+                                    <div class="classificador-style classificador-row 
+                                {"produtivo" if row['tipo_classificador'] == Consulta.PRODUTIVO else "improdutivo"}">
+                                        {row['resposta_classificador']}
+                                    </div>
+                                </div>
+                                """,
+                                unsafe_allow_html=True
+                            )
                 if st.button("Remover selecionados"):
-                    linhas_selecionadas = data_editor.index[data_editor["Remover"]].tolist()
-                    ids_para_remover = [
-                        i for i in ids.iloc[linhas_selecionadas].tolist()
-                        if i not in ids.iloc[:10].tolist()
-                    ]
+                    ids_protegidos = ids[:10]  # protege os 10 primeiros
+                    ids_para_remover = [i for i in selecionados if i not in ids_protegidos]
 
                     if ids_para_remover:
                         Consulta.delete().where(Consulta.id.in_(ids_para_remover)).execute()
+                        st.success(f"{len(ids_para_remover)} item(s) removido(s).")
                         st.rerun()
                     else:
-                        st.warning("Nenhum item selecionado.")
+                        st.warning("Nenhum item selecionado ou apenas itens protegidos.")
 
             with tab2:
                 col1, col2 = st.columns(2, border=True)

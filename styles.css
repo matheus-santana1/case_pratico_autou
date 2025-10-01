@@ -6,3 +6,89 @@ button[kind="secondaryFormSubmit"]:hover {
     background-color: #45A049;
     color: white;
 }
+
+#tabs-bui2-tabpanel-0 [data-testid="stHorizontalBlock"] {
+    border: 1px solid #3d4044;
+    border-radius: 10px;
+    padding: 15px;
+}
+
+
+#tabs-bui2-tabpanel-0 [data-testid="stMarkdownContainer"] {
+    display: flex;
+    width: 100%;
+    justify-content: space-between;
+    margin-bottom: 0;
+}
+
+
+#tabs-bui2-tabpanel-0 [data-testid="stHorizontalBlock"] [data-testid="stColumn"]:nth-of-type(2),
+#tabs-bui2-tabpanel-0 [data-testid="stHorizontalBlock"] [data-testid="stColumn"]:nth-of-type(1) {
+    width: auto;
+    flex: initial;
+}
+
+[data-testid="stCheckbox"] {
+    margin-top: 0 !important;
+}
+
+.google-style {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    padding: 15px;
+    border-radius: 10px;
+    background-color: rgb(253, 246, 240);
+    box-shadow: rgba(0, 0, 0, 0.1) 0px 2px 8px;
+}
+
+.google-style h4 {
+    color: rgb(255, 127, 14);
+    margin-bottom: 10px;
+}
+
+.google-style p {
+    font-size: 16px;
+    color: rgb(51, 51, 51);
+}
+
+.classificador-style {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    padding: 15px;
+    border-radius: 10px;
+    background-color: rgb(253, 246, 240);
+    box-shadow: rgba(0, 0, 0, 0.1) 0px 2px 8px;
+}
+
+.classificador-style h4 {
+    color: #1f77b4;
+    margin-bottom: 10px;
+}
+
+.classificador-style p {
+    font-size: 16px;
+    color: #333;
+}
+
+.classificador-row {
+    display: flex;
+    max-width: 20%;
+    flex-direction: column;
+    height: max-content;
+}
+
+.classificador-row p {
+    margin-bottom: 0;
+}
+
+.produtivo {
+    color: rgb(92, 228, 136) !important;
+    background-color: rgba(61, 213, 109, 0.2);
+}
+
+.improdutivo {
+    color: rgb(255, 108, 108) !important;
+    background-color: rgba(255, 108, 108, 0.2);
+}
