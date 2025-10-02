@@ -1,0 +1,1 @@
+Houve uma inconsistência nos dados do cliente Empresa XYZ. Poderiam verificar?
