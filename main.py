@@ -52,11 +52,15 @@ def modal_resposta(informacao):
 
 
 if __name__ == '__main__':
-    st.set_page_config(layout="wide")
     load_css("styles.css")
     if db.is_closed():
         db.connect()
     db.create_tables([Consulta])
+    st.set_page_config(
+        page_title="Case Prático AutoU",
+        page_icon="📊",
+        layout="wide"
+    )
     with st.container():
         with st.form(key='form', clear_on_submit=True):
             text_input = st.text_area('Conteúdo do e-mail:')
