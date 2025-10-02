@@ -13,24 +13,42 @@ def load_css(file_name: str):
 
 @st.dialog("Resposta")
 def modal_resposta(informacao):
+    st.markdown(f"**Conteúdo do e-mail:** {informacao.conteudo_email}")
+    st.markdown(f"**Data da consulta:** {informacao.data:%d/%m/%Y às %H:%M}.")
+
     st.markdown(
         f"""
         <div class="classificador-style">
             <h4>Classificador (Random Forest)</h4>
-            <p>{informacao.resposta_classificador}.</p>
+            <p><b>{informacao.resposta_classificador}.</b></p>
         </div>
         """,
         unsafe_allow_html=True
     )
+    texto_original = html.escape(informacao.resposta_api)
+    analise_gemini = texto_original.replace("\n", "<br>")
+    analise_gemini = analise_gemini.replace("Improdutivo:", "<b>Improdutivo:</b>")
+    analise_gemini = analise_gemini.replace("Produtivo:", "<b>Produtivo:</b>")
+
+    resposta_final = None
+    if "Resposta:" in analise_gemini:
+        partes = analise_gemini.split("Resposta:", 1)
+        analise_gemini = partes[0].strip()  # só até antes da resposta
+        resposta_final = partes[1].strip()  # só a resposta, sem <b>
+
     st.markdown(
         f"""
         <div class="google-style" style="margin: 10px 0px 10px 0px;">
             <h4>API (Google Gemini)</h4>
-            <p>{informacao.resposta_api}</p>
+            <p>{analise_gemini}</p>
         </div>
         """,
         unsafe_allow_html=True
     )
+
+    if resposta_final:
+        st.markdown("**Resposta:**")
+        st.code(resposta_final, wrap_lines=True, language="text")
 
 
 if __name__ == '__main__':
@@ -84,7 +102,7 @@ if __name__ == '__main__':
                                 modal_resposta(consulta)
 
                         with cols[1]:
-                            if st.checkbox("", key=f"chk_{consulta_id}"):
+                            if st.checkbox("Selecionar", key=f"chk_{consulta_id}", label_visibility="collapsed"):
                                 selecionados.append(consulta_id)
 
                         with cols[2]:

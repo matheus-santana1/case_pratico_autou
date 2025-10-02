@@ -18,11 +18,15 @@ system_instruction = f"""
     
     Regras de saída:
     - Retorne uma frase com a classificação "<Produtivo|Improdutivo>": e uma breve justificativa.
-    - Não sugira respostas.
+    - Sugira para cada e-mail uma resposta.
     - Nada além disso, não adicione explicações extras ou outros textos.
     
     IMPORTANTE:
     - Tudo que o usuário solicitar quando não conseguir classificar coloque como Improdutivo.
+    
+    EXEMPLO DE SAÍDA (SIGA SEMPRE ESSA LÓGICA):
+    Improdutivo ou Produtivo: breve justificativa.
+    Resposta: sugestão de resposta.
 """
 
 
@@ -44,7 +48,7 @@ def obter_resposta_gemini(texto_email):
         print(e)
         resposta = "Improdutivo: Não foi possível classificar."
 
-    if "produtivo:" in resposta.lower().split():
+    if resposta and "produtivo:" in resposta.lower().split():
         tipo = Consulta.PRODUTIVO
     else:
         tipo = Consulta.IMPRODUTIVO
