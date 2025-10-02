@@ -125,6 +125,12 @@ A aplicação já está disponível online no Hugging Face Spaces:
 
 ---
 
+## 🎥 Vídeo de Apresentação
+
+👉 [Youtube](https://www.youtube.com/watch?v=fPlB4Mc5YG8)
+
+---
+
 ## 👤 Autor
 
 Desenvolvido por **Matheus Santana**
